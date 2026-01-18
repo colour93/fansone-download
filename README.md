@@ -18,7 +18,7 @@ pnpm start
 
 配置默认保存在 `config.yaml`, 断点续传等数据保存在 `data.json`, 登录时使用 playwright 有头浏览器, 所以可能当前版本还需要 GUI 系统, 当然你也可以在有 GUI 的系统中登录后把 cookies 拷过来。
 
-下载后的文件放置在 `downloads` 下, 按照 `userDisplayName(@username)` + `videos`/`photos` + `title-date(YYYYMMDD_HHmmss)-#FDpostId.ext` 组织文件。
+下载后的文件放置在 `downloads` 下, 按照 `userDisplayName(@username)` + `videos`/`photos` + `title-date(YYYYMMDD_HHmmss)-#FDpostId(-index).ext` 组织文件。
 
 ## Q&A
 
