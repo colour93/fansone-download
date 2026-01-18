@@ -116,7 +116,7 @@ export class FansoneApi {
     }: {
         page?: number;
         limit?: number;
-        type?: 'all' | 'video' | 'photo';
+        type?: 'all' | 'video' | 'picture';
         username: string;
     }) {
         const response = await this.withRetry(

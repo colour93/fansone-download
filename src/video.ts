@@ -1,7 +1,7 @@
 import type { Post } from "./fansone.d.js";
 import { FansoneApi } from "./fansone.js";
 import { DOWNLOADS_DIR, TEMP_DIR } from "./consts.js";
-import { dirExistsOrMkdir } from "./utils.js";
+import { dirExistsOrMkdir, getSpeedText, userDirName } from "./utils.js";
 import path from 'node:path';
 import { createWriteStream, promises as fs } from 'node:fs';
 import { pipeline } from 'node:stream/promises';
@@ -58,7 +58,7 @@ export class Video {
 
     public async downloadToLocal() {
 
-        const outputDir = path.resolve(DOWNLOADS_DIR, `${this.post.displayname} (@${this.post.username})`, 'videos');
+        const outputDir = path.resolve(DOWNLOADS_DIR, userDirName(this.post), 'videos');
         await dirExistsOrMkdir(outputDir);
         const fileName = `${this.post.title.replace(/[<>:"/\\|?*\x00-\x1F]/g, '_').replace(/\s+/g, ' ').trim().slice(0, 80) || 'video'}-${dayjs(this.post.created_at).format('YYYYMMDD_HHmmss')}-#FD${this.post.id}`;
 
@@ -193,21 +193,6 @@ export class Video {
             let bytesDownloaded = 0;
             const startedAt = Date.now();
 
-            const formatBytes = (bytes: number) => {
-                if (bytes <= 0) {
-                    return '0 B';
-                }
-                const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-                const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
-                const value = bytes / (1024 ** index);
-                return `${value.toFixed(value < 10 && index > 0 ? 2 : 1)} ${units[index]}`;
-            };
-            const getSpeedText = () => {
-                const elapsedSec = (Date.now() - startedAt) / 1000;
-                const speed = elapsedSec > 0 ? bytesDownloaded / elapsedSec : 0;
-                return `${formatBytes(speed)}/s`;
-            };
-
             const progressBar = new cliProgress.SingleBar({
                 format: `[Video:${this.post.id}] {bar} {percentage}% | {value}/{total} | {speed} | 跳过:{skipped}`,
                 hideCursor: true,
@@ -215,13 +200,13 @@ export class Video {
             }, cliProgress.Presets.shades_classic);
 
             progressBar.start(totalSegments, skipped, {
-                speed: getSpeedText(),
+                speed: getSpeedText(startedAt, bytesDownloaded),
                 skipped,
             });
 
             const updateProgress = () => {
                 progressBar.update(completed + skipped, {
-                    speed: getSpeedText(),
+                    speed: getSpeedText(startedAt, bytesDownloaded),
                     skipped,
                 });
             };

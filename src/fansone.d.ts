@@ -34,7 +34,7 @@ export type Post = {
     content_en: string | null;
     content_zh: string;
     images: string;
-    type: "VIDEO" | "PHOTO" | string;
+    type: "VIDEO" | "BASIC" | string;
     permission: "PAID_OR_SUBSCRIPTION" | "PAID" | "FREE" | "ONLY_PAID" | string;
     price: number;
     subscription_level: "LEVEL1" | "LEVEL0" | string;

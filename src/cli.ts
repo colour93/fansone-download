@@ -6,6 +6,7 @@ import { DOWNLOADS_DIR } from './consts.js';
 import { FansoneApi } from './fansone.js';
 import { Video } from './video.js';
 import type { Post } from './fansone.d.js';
+import { Photo } from './photo.js';
 
 const POST_ID_REGEX = /#FD(\d+)/;
 
@@ -115,8 +116,49 @@ export async function runCli(): Promise<void> {
         for (const [index, subscription] of selectedSubscriptions.entries()) {
             console.log(`[${index + 1}/${selectedSubscriptions.length}] 正在下载第 ${index + 1} 个订阅用户: ${subscription.username}`);
 
-            // 先获取视频 post 列表
+            // 获取图片 post 列表
+            let photoPosts: Post[] = [];
+            console.log(`[${index + 1}/${selectedSubscriptions.length}] ${subscription.username} 正在获取第一页图片帖子列表...`);
+            const firstPagePhotoPosts = await fansone.getPosts({
+                page: 1,
+                limit: 100,
+                type: 'picture',
+                username: subscription.username,
+            });
+            photoPosts.push(...firstPagePhotoPosts.data);
+            console.log(`[${index + 1}/${selectedSubscriptions.length}] ${subscription.username} 图片帖子总数: ${firstPagePhotoPosts.count}`);
 
+            for (let page = 2; page <= Math.ceil(firstPagePhotoPosts.count / 100); page++) {
+                console.log(`[${index + 1}/${selectedSubscriptions.length}] ${subscription.username} 正在获取第 ${page} 页图片帖子列表...`);
+                const currentPagePhotoPosts = await fansone.getPosts({
+                    page,
+                    limit: 100,
+                    type: 'picture',
+                    username: subscription.username,
+                });
+                photoPosts.push(...currentPagePhotoPosts.data);
+            }
+
+            // 仅保留可以查看的图片
+            const canViewPhotoPosts = photoPosts.filter(post => post.can_view != 0);
+
+            const pendingPhotoPosts = canViewPhotoPosts.filter(post => !downloadedPostIds.has(post.id));
+            console.log(`[${index + 1}/${selectedSubscriptions.length}] ${subscription.username} 开始下载图片帖子 剩余/可看/总计 ${pendingPhotoPosts.length}/${canViewPhotoPosts.length}/${photoPosts.length}）...`);
+
+            for (const [photoIndex, photoPost] of pendingPhotoPosts.entries()) {
+                console.log(`[${index + 1}/${selectedSubscriptions.length}] ${subscription.username} (${photoIndex + 1}/${pendingPhotoPosts.length}) 正在下载图片帖子: ${photoPost.title}`);
+                try {
+                    const photo = new Photo({
+                        post: photoPost,
+                    });
+                    await photo.downloadToLocal();
+                    downloadedPostIds.add(photoPost.id);
+                } catch (error) {
+                    console.error(`[${index + 1}/${selectedSubscriptions.length}] ${subscription.username} (${photoIndex + 1}/${pendingPhotoPosts.length}) 下载图片帖子失败: ${photoPost.title}`, error);
+                }
+            }
+
+            // 获取视频 post 列表
             let videoPosts: Post[] = [];
 
             console.log(`[${index + 1}/${selectedSubscriptions.length}] ${subscription.username} 正在获取第一页视频帖子列表...`);
