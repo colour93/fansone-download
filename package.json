@@ -1,0 +1,32 @@
+{
+  "name": "fansone-download",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx --watch src",
+    "start": "tsx src"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.22.0",
+  "dependencies": {
+    "@inquirer/prompts": "^7.8.4",
+    "@types/got": "^9.6.12",
+    "axios": "^1.13.2",
+    "cli-progress": "^3.12.0",
+    "dayjs": "^1.11.19",
+    "got": "^14.6.6",
+    "node-av": "^5.0.3",
+    "p-queue": "^9.1.0",
+    "playwright": "^1.57.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "yaml": "^2.8.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3"
+  }
+}

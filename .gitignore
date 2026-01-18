@@ -1,0 +1,6 @@
+downloads/
+dist/
+node_modules/
+config.yaml
+data.json
+.DS_Store
