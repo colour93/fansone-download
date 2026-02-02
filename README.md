@@ -4,7 +4,7 @@
 
 ## 怎么用？
 
-首先 node > 22, 因为要安装 node-av 这个包 (它是 ffmpeg 的 node binding, 有 pre-built bin)。
+首先 node >= 22, 因为要安装 node-av 这个包 (它是 ffmpeg 的 node binding, 有 pre-built bin)。
 
 然后
 

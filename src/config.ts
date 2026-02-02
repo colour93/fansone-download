@@ -9,6 +9,10 @@ export type Config = {
     download?: {
         concurrency?: number;
     };
+    filter?: {
+        mode?: 'blacklist' | 'whitelist';
+        regex?: string;
+    };
 };
 
 const CONFIG_FILE = 'config.yaml';
