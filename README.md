@@ -1,6 +1,6 @@
 # fansone-download
 
-> 基于 playwright 登录获取 cookies, axios 请求 api, got 下载分片，node-av (ffmpeg) 推测并合并文件的 fansone 订阅下载器。
+> 基于 playwright 登录获取 cookies, axios 请求 api, got 下载分片, node-av (ffmpeg) 推测并合并文件的 fansone 订阅下载器。
 
 ## 怎么用？
 
