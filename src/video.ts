@@ -44,12 +44,47 @@ export class Video {
         switch (this.post.domain) {
             case 'video7.fansone.co':
                 return `https://${this.post.domain}/${this.post.domain}/${this.post.video}/master.m3u8`;
+            case 'video5.fansone.co':
+                // video5 不需要签名，直接构建 URL
+                return `https://${this.post.domain}/${this.post.video}/master.m3u8`;
             case 'video9194.fansone.co':
-            default:
                 return await this.fansone.getVideoSignedUrl({
                     videoId: this.post.video,
-                    domain: this.post.domain,
+                    domain: 'video9194',
                 });
+            default: {
+                // 对于其他未知域名，尝试使用签名 API
+                let signedUrl = await this.fansone.getVideoSignedUrl({
+                    videoId: this.post.video,
+                    domain: 'video9194',
+                });
+
+                // 检查并修复 URL 格式
+                // API 可能返回格式错误的 URL，签名参数在路径中而不是查询参数
+                // 错误格式: https://domain/bcdn_token=xxx&token_path=xxx/path/playlist.m3u8
+                // 正确格式: https://domain/path/playlist.m3u8?bcdn_token=xxx&token_path=xxx
+                if (signedUrl.includes('/bcdn_token=')) {
+                    const urlObj = new URL(signedUrl);
+                    const pathParts = urlObj.pathname.split('/');
+                    const tokenPart = pathParts[1]; // bcdn_token=xxx&token_path=xxx&expires=xxx
+
+                    if (tokenPart && tokenPart.startsWith('bcdn_token=')) {
+                        // 重建正确的 URL
+                        const actualPath = '/' + pathParts.slice(2).join('/');
+                        signedUrl = `${urlObj.origin}${actualPath}?${tokenPart}`;
+                        logger.debug(`[Video:${this.post.id}] 修正URL格式: ${signedUrl}`);
+                    }
+                }
+
+                // 将 video9194 替换为实际的域名，因为视频存储在原始域名上
+                if (this.post.domain !== 'video9194.fansone.co') {
+                    const actualUrl = signedUrl.replace('video9194.fansone.co', this.post.domain);
+                    logger.debug(`[Video:${this.post.id}] 替换域名为实际存储位置: ${actualUrl}`);
+                    return actualUrl;
+                }
+
+                return signedUrl;
+            }
         }
 
 
